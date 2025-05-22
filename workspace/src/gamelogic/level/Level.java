@@ -197,39 +197,116 @@ public class Level {
 	//Your code goes here! 
 	//Please make sure you read the rubric/directions carefully and implement the solution recursively!
 	private void water(int col, int row, Map map, int fullness) {
+		    //make water (You’ll need modify this to make different kinds of water such as half water and quarter water)
+		String hold = "";
+		if(fullness==0){
+			hold = "Falling_water";
+		}
+		else if(fullness==1){
+			hold = "Quarter_water";
+		}
+		else if(fullness==2){
+			hold = "Half_water";
+		}
+		else if(fullness==3){
+			hold = "Full_water";
+		}
 		
+		Water w = new Water (col, row, tileSize, tileset.getImage(hold), this, fullness);
+		map.addTile(col, row, w);
+
+                       //check if we can go down
+		if(row+1 < map.getTiles()[col].length && !(map.getTiles()[col][row+1].isSolid())){
+			if(row + 2 < map.getTiles()[col].length && map.getTiles()[col][row+2].isSolid()){
+			water(col, row+1, map, 3);
+			}
+			else if(row + 1 < map.getTiles()[col].length && !(map.getTiles()[col][row+1] instanceof Water)){
+			water(col, row+1, map, 0);
+		}
+		}else{
+			//go left and right
+                       //if we can’t go down go left and right.
+		//right 
+		if(col+1 < map.getTiles().length  && !map.getTiles()[col + 1][row].isSolid() && !(map.getTiles()[col+1][row] instanceof Water)) {
+			if(fullness>1){
+				water(col+1, row, map, fullness-1);
+			}else if(fullness==1){
+			water(col+1, row, map, fullness);
+			}
+		}
+		//left 
+		if(col-1 >= 0 && !map.getTiles()[col - 1][row].isSolid() && !(map.getTiles()[col-1][row] instanceof Water)) {
+			if(fullness>1){
+				water(col-1, row, map, fullness-1);
+			}else if(fullness == 1){
+			water(col-1, row, map, fullness);
+			}
+		}
+	}
+
 	}
 
 
 
 	public void draw(Graphics g) {
-		g.translate((int) -camera.getX(), (int) -camera.getY());
+	   	 g.translate((int) -camera.getX(), (int) -camera.getY());
+	   	 // Draw the map
+	   	 for (int x = 0; x < map.getWidth(); x++) {
+	   		 for (int y = 0; y < map.getHeight(); y++) {
+	   			 Tile tile = map.getTiles()[x][y];
+	   			 if (tile == null)
+	   				 continue;
+	   			 if(tile instanceof Gas) {
+	   				
+	   				 int adjacencyCount =0;
+	   				 for(int i=-1; i<2; i++) {
+	   					 for(int j =-1; j<2; j++) {
+	   						 if(j!=0 || i!=0) {
+	   							 if((x+i)>=0 && (x+i)<map.getTiles().length && (y+j)>=0 && (y+j)<map.getTiles()[x].length) {
+	   								 if(map.getTiles()[x+i][y+j] instanceof Gas) {
+	   									 adjacencyCount++;
+	   								 }
+	   							 }
+	   						 }
+	   					 }
+	   				 }
+	   				 if(adjacencyCount == 8) {
+	   					 ((Gas)(tile)).setIntensity(2);
+	   					 tile.setImage(tileset.getImage("GasThree"));
+	   				 }
+	   				 else if(adjacencyCount >5) {
+	   					 ((Gas)(tile)).setIntensity(1);
+	   					tile.setImage(tileset.getImage("GasTwo"));
+	   				 }
+	   				 else {
+	   					 ((Gas)(tile)).setIntensity(0);
+	   					tile.setImage(tileset.getImage("GasOne"));
+	   				 }
+	   			 }
+	   			 if (camera.isVisibleOnCamera(tile.getX(), tile.getY(), tile.getSize(), tile.getSize()))
+	   				 tile.draw(g);
+	   		 }
+	   	 }
 
-		// Draw the map
-		for (int x = 0; x < map.getWidth(); x++) {
-			for (int y = 0; y < map.getHeight(); y++) {
-				Tile tile = map.getTiles()[x][y];
-				if (tile == null)
-					continue;
-				if (camera.isVisibleOnCamera(tile.getX(), tile.getY(), tile.getSize(), tile.getSize()))
-					tile.draw(g);
-			}
-		}
 
-		// Draw the enemies
-		for (int i = 0; i < enemies.length; i++) {
-			enemies[i].draw(g);
-		}
+	   	 // Draw the enemies
+	   	 for (int i = 0; i < enemies.length; i++) {
+	   		 enemies[i].draw(g);
+	   	 }
 
-		// Draw the player
-		player.draw(g);
 
-		// used for debugging
-		if (Camera.SHOW_CAMERA)
-			camera.draw(g);
+	   	 // Draw the player
+	   	 player.draw(g);
 
-		g.translate((int) +camera.getX(), (int) +camera.getY());
-	}
+
+
+
+	   	 // used for debugging
+	   	 if (Camera.SHOW_CAMERA)
+	   		 camera.draw(g);
+	   	 g.translate((int) +camera.getX(), (int) +camera.getY());
+	    }
+
 
 	// --------------------------Die-Listener
 	public void throwPlayerDieEvent() {
@@ -273,4 +350,5 @@ public class Level {
 	public Player getPlayer() {
 		return player;
 	}
+	
 }
