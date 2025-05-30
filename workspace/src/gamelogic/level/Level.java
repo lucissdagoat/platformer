@@ -35,6 +35,7 @@ public class Level {
 
 	private ArrayList<Enemy> enemiesList = new ArrayList<>();
 	private ArrayList<Flower> flowers = new ArrayList<>();
+	private ArrayList<Water> waters = new ArrayList<>();
 
 	private List<PlayerDieListener> dieListeners = new ArrayList<>();
 	private List<PlayerWinListener> winListeners = new ArrayList<>();
@@ -112,15 +113,21 @@ public class Level {
 					tiles[x][y] = new Gas(xPosition, yPosition, tileSize, tileset.getImage("GasThree"), this, 3);
 				else if (values[x][y] == 18)
 					tiles[x][y] = new Water(xPosition, yPosition, tileSize, tileset.getImage("Falling_water"), this, 0);
-				else if (values[x][y] == 19)
+				else if (values[x][y] == 19){
 					tiles[x][y] = new Water(xPosition, yPosition, tileSize, tileset.getImage("Full_water"), this, 3);
-				else if (values[x][y] == 20)
+					waters.add((Water)tiles[x][y] );
+				}
+					
+				else if (values[x][y] == 20){
 					tiles[x][y] = new Water(xPosition, yPosition, tileSize, tileset.getImage("Half_water"), this, 2);
-				else if (values[x][y] == 21)
+					waters.add((Water)tiles[x][y] );
+				}
+				else if (values[x][y] == 21){
 					tiles[x][y] = new Water(xPosition, yPosition, tileSize, tileset.getImage("Quarter_water"), this, 1);
+					waters.add((Water)tiles[x][y] );
 			}
 
-		}
+			}
 		enemies = new Enemy[enemiesList.size()];
 		map = new Map(width, height, tileSize, tiles);
 		camera = new Camera(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0, map.getFullWidth(), map.getFullHeight());
@@ -134,8 +141,8 @@ public class Level {
 		active = true;
 		playerDead = false;
 		playerWin = false;
+		}
 	}
-
 	public void onPlayerDeath() {
 		active = false;
 		playerDead = true;
@@ -167,15 +174,22 @@ public class Level {
 
 			for (int i = 0; i < flowers.size(); i++) {
 				if (flowers.get(i).getHitbox().isIntersecting(player.getHitbox())) {
-					if(flowers.get(i).getType() == 1)
+					if(flowers.get(i).getType() == 1){
 						water(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 3);
-//					else
-//						addGas(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 20, new ArrayList<Gas>());
+				}
+					else{
+						addGas(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 20, new ArrayList<Gas>());
+					}
 					flowers.remove(i);
 					i--;
 				}
 			}
 
+			for(Water w: waters){
+				if(w.getHitbox().isIntersecting(player.getHitbox())){
+
+				}
+			}
 			// Update the enemies
 			for (int i = 0; i < enemies.length; i++) {
 				enemies[i].update(tslf);
@@ -191,8 +205,39 @@ public class Level {
 			camera.update(tslf);
 		}
 	}
+	//Adds gas tiles until the requisite number of squares are filled or there is no more room 
+	//Pre-condition: make sure num squares to fill is greater than zero
+	//Post-Condition: it will fill in gas around the flower based on the map around it, it will not replace any solid or other gas or water blocks with more gas. 
+private void addGas(int col, int row, Map map, int numSquaresToFill, ArrayList<Gas> placedThisRound) {
+	Gas g = new Gas (col, row, tileSize, tileset.getImage("GasOne"), this, 0);
+	map.addTile(col, row, g);
+	placedThisRound.add(g);
+	numSquaresToFill--;
+
 	
+	while(placedThisRound.size()>0 && numSquaresToFill>0){
+		int r = placedThisRound.get(0).getRow();
+		int c = placedThisRound.get(0).getCol();
+		placedThisRound.remove(0);
+	   for(int rowIndex = r-1; rowIndex<r+2; rowIndex++){
+            for(int colIndex = c; colIndex>c-2 ; colIndex-=2)
+            {
+					if(colIndex<map.getTiles().length && rowIndex<map.getTiles()[colIndex].length && colIndex>=0 && rowIndex>=0 && !map.getTiles()[colIndex][rowIndex].isSolid() && !(map.getTiles()[colIndex][rowIndex] instanceof Gas)){
+			g = new Gas(colIndex, rowIndex, tileSize, tileset.getImage("GasOne"), this, 0);
+				map.addTile(colIndex, rowIndex, g);
+			placedThisRound.add(g);
+			numSquaresToFill--;
+		}
+		if(colIndex == c){
+		colIndex += 3;
+		}
+
+	}
+}
 	
+}	
+
+}
 	//#############################################################################################################
 	//Your code goes here! 
 	//Please make sure you read the rubric/directions carefully and implement the solution recursively!
@@ -214,7 +259,7 @@ public class Level {
 		
 		Water w = new Water (col, row, tileSize, tileset.getImage(hold), this, fullness);
 		map.addTile(col, row, w);
-
+		waters.add(w);
                        //check if we can go down
 		if(row+1 < map.getTiles()[col].length && !(map.getTiles()[col][row+1].isSolid())){
 			if(row + 2 < map.getTiles()[col].length && map.getTiles()[col][row+2].isSolid()){
