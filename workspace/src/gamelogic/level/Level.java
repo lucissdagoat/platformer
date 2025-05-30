@@ -205,6 +205,8 @@ public class Level {
 			camera.update(tslf);
 		}
 	}
+		//#############################################################################################################
+	//Your code goes here! 
 	//Adds gas tiles until the requisite number of squares are filled or there is no more room 
 	//Pre-condition: make sure num squares to fill is greater than zero
 	//Post-Condition: it will fill in gas around the flower based on the map around it, it will not replace any solid or other gas or water blocks with more gas. 
@@ -238,9 +240,10 @@ private void addGas(int col, int row, Map map, int numSquaresToFill, ArrayList<G
 }	
 
 }
-	//#############################################################################################################
-	//Your code goes here! 
+
 	//Please make sure you read the rubric/directions carefully and implement the solution recursively!
+	//Pre-Conditions: You need a water flower on the map. 
+	//Post-Conditions: It will recursively put water on the map with thickness and pathing depending on the shape of the map and the lenght of the stream of the water. 
 	private void water(int col, int row, Map map, int fullness) {
 		    //make water (You’ll need modify this to make different kinds of water such as half water and quarter water)
 		String hold = "";
