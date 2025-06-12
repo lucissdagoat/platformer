@@ -13,6 +13,7 @@ import gamelogic.tiles.Tile;
 public class Player extends PhysicsObject{
 	public float walkSpeed = 400;
 	public float jumpPower = 1350;
+	public static boolean activeAbility = false;	
 
 	private boolean isJumping = false;
 
@@ -34,12 +35,14 @@ public class Player extends PhysicsObject{
 		if(PlayerInput.isRightKeyDown()) {
 			movementVector.x = +walkSpeed;
 		}
-		if(PlayerInput.isJumpKeyDown() && !isJumping) {
+		if(PlayerInput.isJumpKeyDown() && (!isJumping || activeAbility)) {
 			movementVector.y = -jumpPower;
 			isJumping = true;
+			System.out.println("ActiveAb: " + activeAbility);
 		}
 		
-		isJumping = true;
+		// isJumping = true;
+		
 		if(collisionMatrix[BOT] != null) isJumping = false;
 	}
 
