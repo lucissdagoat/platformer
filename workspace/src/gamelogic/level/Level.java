@@ -291,12 +291,14 @@ private void addGas(int col, int row, Map map, int numSquaresToFill, ArrayList<G
 	   for(int rowIndex = r-1; rowIndex<r+2; rowIndex++){
             for(int colIndex = c; colIndex>c-2 ; colIndex-=2)
             {
+				if(numSquaresToFill>0){
 					if(colIndex<map.getTiles().length && rowIndex<map.getTiles()[colIndex].length && colIndex>=0 && rowIndex>=0 && !map.getTiles()[colIndex][rowIndex].isSolid() && !(map.getTiles()[colIndex][rowIndex] instanceof Gas)){
 			g = new Gas(colIndex, rowIndex, tileSize, tileset.getImage("GasOne"), this, 0);
 				map.addTile(colIndex, rowIndex, g);
 			placedThisRound.add(g);
 			gases.add(g);
 			numSquaresToFill--;
+					}
 		}
 		if(colIndex == c){
 		colIndex += 3;
